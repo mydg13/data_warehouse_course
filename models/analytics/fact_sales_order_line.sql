@@ -5,7 +5,7 @@ WITH fact_sales_order__source AS (
 
 , fact_sales_order__rename AS (
   SELECT 
-    order_line_id AS  sales_order_line_key
+    order_line_id AS sales_order_line_key
     , order_id AS sales_order_key
     , stock_item_id AS product_key
     , quantity
@@ -24,11 +24,13 @@ WITH fact_sales_order__source AS (
 )
 
 SELECT 
-  sales_order_line_key
-  , sales_order_key
-  , product_key
-  , quantity
-  , unit_price
-  , quantity * unit_price gross_amount
-FROM fact_sales_order__cast_type
-
+  fact_line.sales_order_line_key
+  , fact_line.sales_order_key
+  , fact_line.product_key
+  , fact_header.customer_key
+  , fact_line.quantity
+  , fact_line.unit_price
+  , fact_line.quantity * fact_line.unit_price AS gross_amount
+FROM fact_sales_order__cast_type AS fact_line 
+JOIN `wide_world_importers_dwh_staging.stg_fact_sale_order` AS fact_header
+  ON fact_line.sales_order_key = fact_header.sales_order_key
