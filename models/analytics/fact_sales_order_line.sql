@@ -32,5 +32,5 @@ SELECT
   , fact_line.unit_price
   , fact_line.quantity * fact_line.unit_price AS gross_amount
 FROM fact_sales_order__cast_type AS fact_line 
-JOIN `wide_world_importers_dwh_staging.stg_fact_sale_order` AS fact_header
+JOIN {{ref('stg_fact_sale_order')}} AS fact_header
   ON fact_line.sales_order_key = fact_header.sales_order_key
