@@ -34,8 +34,8 @@ SELECT
     END AS is_on_credit_hold
   , dim_customer.customer_category_key
   , dim_customer.buying_group_key
-  , dim_buying_group.buying_group_name
-  , dim_customer_category.customer_category_name
+  , COALESCE(dim_buying_group.buying_group_name,'Undefined') AS buying_group_name
+  , COALESCE(dim_customer_category.customer_category_name,'Undefined') AS customer_category_name
 FROM dim_customer__cast_type dim_customer
 LEFT JOIN {{ref('stg_dim_buying_group')}} as dim_buying_group
 ON dim_customer.buying_group_key = dim_buying_group.buying_group_key

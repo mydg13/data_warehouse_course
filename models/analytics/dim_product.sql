@@ -26,9 +26,9 @@ WITH dim_product__source AS (
 SELECT 
   dim_product.product_key,
   dim_product.product_name,
-  dim_product.brand_name,
+  COALESCE(dim_product.brand_name,'Undefined') brand_name,
   dim_product.supplier_key,
-  dim_supplier.supplier_name,
+  COALESCE(dim_supplier.supplier_name,'Invalid') supplier_name,
   CASE 
     WHEN dim_product.is_chiller_stock_boolean IS TRUE THEN 'Chiller Stock'
     WHEN dim_product.is_chiller_stock_boolean IS FALSE THEN 'Not Chiller Stock'
