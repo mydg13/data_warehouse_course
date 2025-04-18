@@ -5,29 +5,36 @@ WITH dim_product__source AS (
 
 , dim_product__rename AS (
   SELECT 
-    stock_item_id AS  product_key
-    , stock_item_name AS product_name
-    , brand AS	brand_name
-    , supplier_id as supplier_key
+    stock_item_id AS product_key,
+    stock_item_name AS product_name,
+    brand AS brand_name,
+    supplier_id AS supplier_key,
+    is_chiller_stock
   FROM dim_product__source
 )
 
 , dim_product__cast_type AS (
   SELECT 
-    CAST(product_key AS INTEGER) AS product_key
-    , CAST(product_name AS STRING) AS product_name
-    , CAST(brand_name AS STRING) AS brand_name
-    , CAST(supplier_key AS INTEGER) AS supplier_key
+    CAST(product_key AS INTEGER) AS product_key,
+    CAST(product_name AS STRING) AS product_name,
+    CAST(brand_name AS STRING) AS brand_name,
+    CAST(supplier_key AS INTEGER) AS supplier_key,
+    CAST(is_chiller_stock AS BOOLEAN) AS is_chiller_stock_boolean
   FROM dim_product__rename
 )
 
 SELECT 
-  dim_product.product_key
-  , dim_product.product_name
-  , dim_product.brand_name
-  , dim_product.supplier_key
-  , dim_supplier.supplier_name
+  dim_product.product_key,
+  dim_product.product_name,
+  dim_product.brand_name,
+  dim_product.supplier_key,
+  dim_supplier.supplier_name,
+  CASE 
+    WHEN dim_product.is_chiller_stock_boolean IS TRUE THEN 'Chiller Stock'
+    WHEN dim_product.is_chiller_stock_boolean IS FALSE THEN 'Not Chiller Stock'
+    WHEN dim_product.is_chiller_stock_boolean IS NULL THEN 'Undefined'
+    ELSE 'Invalid'
+  END AS is_chiller_stock_label
 FROM dim_product__cast_type dim_product
-LEFT JOIN {{ref('dim_supplier')}} as dim_supplier
-ON dim_product.supplier_key = dim_supplier.supplier_key
-
+LEFT JOIN {{ref('dim_supplier')}} AS dim_supplier
+  ON dim_product.supplier_key = dim_supplier.supplier_key
