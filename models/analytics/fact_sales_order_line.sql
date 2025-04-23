@@ -23,6 +23,12 @@ WITH fact_sales_order__source AS (
   FROM fact_sales_order__rename
 )
 
+, fact_sales_order__caculate_measure AS (
+  SELECT *
+    , quantity * unit_price AS gross_amount
+  FROM fact_sales_order__rename
+)
+
 SELECT 
   fact_line.sales_order_line_key
   , fact_line.sales_order_key
@@ -30,7 +36,7 @@ SELECT
   , fact_header.customer_key
   , fact_line.quantity
   , fact_line.unit_price
-  , fact_line.quantity * fact_line.unit_price AS gross_amount
-FROM fact_sales_order__cast_type AS fact_line 
+  , fact_line.gross_amount
+FROM fact_sales_order__caculate_measure AS fact_line 
 JOIN {{ref('stg_fact_sale_order')}} AS fact_header
   ON fact_line.sales_order_key = fact_header.sales_order_key
