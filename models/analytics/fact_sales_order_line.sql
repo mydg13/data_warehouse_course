@@ -38,5 +38,5 @@ SELECT
   , fact_line.unit_price
   , fact_line.gross_amount
 FROM fact_sales_order__caculate_measure AS fact_line 
-JOIN {{ref('stg_fact_sale_order')}} AS fact_header
+LEFT JOIN {{ref('stg_fact_sale_order')}} AS fact_header
   ON fact_line.sales_order_key = fact_header.sales_order_key

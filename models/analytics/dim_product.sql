@@ -23,18 +23,23 @@ WITH dim_product__source AS (
   FROM dim_product__rename
 )
 
-SELECT 
-  dim_product.product_key,
-  dim_product.product_name,
-  COALESCE(dim_product.brand_name,'Undefined') brand_name,
-  dim_product.supplier_key,
-  COALESCE(dim_supplier.supplier_name,'Invalid') supplier_name,
-  CASE 
-    WHEN dim_product.is_chiller_stock_boolean IS TRUE THEN 'Chiller Stock'
-    WHEN dim_product.is_chiller_stock_boolean IS FALSE THEN 'Not Chiller Stock'
-    WHEN dim_product.is_chiller_stock_boolean IS NULL THEN 'Undefined'
+, dim_product__conver_boolean AS (
+  SELECT *
+  , CASE 
+    WHEN is_chiller_stock_boolean IS TRUE THEN 'Chiller Stock'
+    WHEN is_chiller_stock_boolean IS FALSE THEN 'Not Chiller Stock'
+    WHEN is_chiller_stock_boolean IS NULL THEN 'Undefined'
     ELSE 'Invalid'
-  END AS is_chiller_stock_label
-FROM dim_product__cast_type dim_product
+  END AS is_chiller_stock
+  FROM dim_product__cast_type
+)
+SELECT 
+  dim_product.product_key
+  , dim_product.product_name
+  , COALESCE(dim_product.brand_name,'Undefined') brand_name
+  , dim_product.supplier_key
+  , COALESCE(dim_supplier.supplier_name,'Invalid') supplier_name
+  , dim_product.is_chiller_stock
+FROM dim_product__conver_boolean dim_product
 LEFT JOIN {{ref('dim_supplier')}} AS dim_supplier
   ON dim_product.supplier_key = dim_supplier.supplier_key

@@ -23,20 +23,25 @@ WITH dim_customer__source AS (
   FROM dim_customer__rename
 )
 
+, dim_customer__convert_boolean AS (
+  SELECT *
+  , CASE 
+    WHEN is_on_credit_hold_boolean IS TRUE THEN 'On Creadit Hold'
+    WHEN is_on_credit_hold_boolean IS FALSE THEN 'Not On Creadit Hold'
+    WHEN is_on_credit_hold_boolean IS NULL THEN 'Undefined'
+    ELSE 'Invalid'
+    END AS is_on_credit_hold
+  FROM dim_customer__cast_type
+)
 SELECT 
   dim_customer.customer_key
   , dim_customer.customer_name
-  , CASE 
-    WHEN dim_customer.is_on_credit_hold_boolean IS TRUE THEN 'On Creadit Hold'
-    WHEN dim_customer.is_on_credit_hold_boolean IS FALSE THEN 'Not On Creadit Hold'
-    WHEN dim_customer.is_on_credit_hold_boolean IS NULL THEN 'Undefined'
-    ELSE 'Invalid'
-    END AS is_on_credit_hold
+  , dim_customer.is_on_credit_hold
   , dim_customer.customer_category_key
+  , COALESCE(dim_customer_category.customer_category_name,'Undefined') AS customer_category_name
   , dim_customer.buying_group_key
   , COALESCE(dim_buying_group.buying_group_name,'Undefined') AS buying_group_name
-  , COALESCE(dim_customer_category.customer_category_name,'Undefined') AS customer_category_name
-FROM dim_customer__cast_type dim_customer
+FROM dim_customer__convert_boolean dim_customer
 LEFT JOIN {{ref('stg_dim_buying_group')}} as dim_buying_group
 ON dim_customer.buying_group_key = dim_buying_group.buying_group_key
 LEFT JOIN {{ref('stg_dim_customer_category')}} as dim_customer_category
