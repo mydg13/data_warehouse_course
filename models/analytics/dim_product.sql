@@ -36,9 +36,9 @@ WITH dim_product__source AS (
 SELECT 
   dim_product.product_key
   , dim_product.product_name
-  , COALESCE(dim_product.brand_name,'Undefined') brand_name
+  , COALESCE(dim_product.brand_name,'Undefined') brand_name --data raw cho phép null
   , dim_product.supplier_key
-  , COALESCE(dim_supplier.supplier_name,'Invalid') supplier_name
+  , COALESCE(dim_supplier.supplier_name,'Invalid') supplier_name --left join nên có null 
   , dim_product.is_chiller_stock
 FROM dim_product__conver_boolean dim_product
 LEFT JOIN {{ref('dim_supplier')}} AS dim_supplier

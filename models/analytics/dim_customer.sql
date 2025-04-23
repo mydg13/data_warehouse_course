@@ -38,9 +38,9 @@ SELECT
   , dim_customer.customer_name
   , dim_customer.is_on_credit_hold
   , dim_customer.customer_category_key
-  , COALESCE(dim_customer_category.customer_category_name,'Undefined') AS customer_category_name
+  , COALESCE(dim_customer_category.customer_category_name,'Invalid') AS customer_category_name --data raw cho phép null
   , dim_customer.buying_group_key
-  , COALESCE(dim_buying_group.buying_group_name,'Undefined') AS buying_group_name
+  , COALESCE(dim_buying_group.buying_group_name,'Invalid') AS buying_group_name --data raw cho phép null
 FROM dim_customer__convert_boolean dim_customer
 LEFT JOIN {{ref('stg_dim_buying_group')}} as dim_buying_group
 ON dim_customer.buying_group_key = dim_buying_group.buying_group_key
