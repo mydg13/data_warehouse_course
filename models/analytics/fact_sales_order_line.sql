@@ -26,15 +26,16 @@ WITH fact_sales_order__source AS (
 , fact_sales_order__caculate_measure AS (
   SELECT *
     , quantity * unit_price AS gross_amount
-  FROM fact_sales_order__rename
+  FROM fact_sales_order__cast_type
 )
 
 SELECT 
   fact_line.sales_order_line_key
   , fact_line.sales_order_key
   , fact_line.product_key
-  , fact_header.customer_key
-  , fact_header.picked_by_person_key
+  , COALESCE (fact_header.customer_key ,-1) AS customer_key
+  , COALESCE (fact_header.picked_by_person_key ,-1) AS picked_by_person_key
+  , fact_header.order_date
   , fact_line.quantity
   , fact_line.unit_price
   , fact_line.gross_amount

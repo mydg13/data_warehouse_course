@@ -33,6 +33,35 @@ WITH dim_customer__source AS (
     END AS is_on_credit_hold
   FROM dim_customer__cast_type
 )
+
+, dim_customer__add_undefined_record AS (
+  SELECT 
+    customer_key
+    , customer_name
+    , is_on_credit_hold
+    , customer_category_key
+    , buying_group_key
+  FROM dim_customer__convert_boolean
+
+  UNION ALL 
+  
+  SELECT 
+    0 AS customer_key
+    , "Undefined" AS customer_name
+    , "Undefined" AS is_on_credit_hold
+    , 0 AS customer_category_key
+    , 0 AS buying_group_key
+
+    UNION ALL 
+  
+  SELECT 
+    -1 AS customer_key
+    , "Invalid" AS customer_name
+    , "Invalid" AS is_on_credit_hold
+    , -1 AS customer_category_key
+    , -1 AS buying_group_key
+)
+
 SELECT 
   dim_customer.customer_key
   , dim_customer.customer_name
@@ -41,7 +70,7 @@ SELECT
   , COALESCE(dim_customer_category.customer_category_name,'Invalid') AS customer_category_name --data raw cho phép null
   , dim_customer.buying_group_key
   , COALESCE(dim_buying_group.buying_group_name,'Invalid') AS buying_group_name --data raw cho phép null
-FROM dim_customer__convert_boolean dim_customer
+FROM dim_customer__add_undefined_record dim_customer
 LEFT JOIN {{ref('stg_dim_buying_group')}} as dim_buying_group
 ON dim_customer.buying_group_key = dim_buying_group.buying_group_key
 LEFT JOIN {{ref('stg_dim_customer_category')}} as dim_customer_category
